@@ -28,3 +28,9 @@ OR SurfaceArea IS NULL OR SurfaceArea<=0
 OR LifeExpectancy IS NULL
 OR GNP IS NULL OR GNP<=0;
 -- RULES: Population > 0, GNP > 0, LifeExpectancy IS NOT NULL (non-states, small terratories eg.Antarctica, Vatican)
+
+SELECT *
+FROM city
+WHERE Name IS NULL OR ID IS NULL
+OR Population IS NULL OR Population<0;
+-- RULES: None
