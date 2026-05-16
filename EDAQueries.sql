@@ -172,6 +172,7 @@ avg_vals AS (
         AVG(lang_norm) AS avg_lang
     FROM final_stats
 )
+, final as (
 SELECT fs.Code, fs.Name,
     fs.Population, fs.GNPperCapita,
     ROUND(fs.population_norm, 2) AS population_norm, ROUND(fs.gnp_norm, 2) AS gnp_norm,
@@ -185,4 +186,8 @@ SELECT fs.Code, fs.Name,
     END AS market_type
 FROM final_stats fs
 CROSS JOIN avg_vals
-ORDER BY market_type DESC;
+ORDER BY market_type DESC
+)
+SELECT market_type, COUNT(*) AS count, ROUND((COUNT(*) / (SELECT COUNT(*) as total_coun from market_base))*100, 2) AS percentage
+FROM final
+GROUP BY market_type;
