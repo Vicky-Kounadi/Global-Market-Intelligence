@@ -79,3 +79,24 @@ FROM country
 WHERE Population > 0 AND GNP > 0 AND LifeExpectancy IS NOT NULL;
 
 SELECT COUNT(*) FROM market_base;
+
+CREATE VIEW country_city_view AS
+SELECT 
+    c.Code AS CountryCode,
+    c.Name AS Country,
+    c.Population AS CountryPopulation,
+    ci.ID AS CityID,
+    ci.Name AS City,
+    ci.Population AS CityPopulation
+FROM country c
+JOIN city ci ON c.Code = ci.CountryCode;
+
+CREATE VIEW country_language_view AS
+SELECT 
+    c.Code AS CountryCode,
+    c.Name AS Country,
+    cl.Language,
+    cl.IsOfficial,
+    cl.Percentage
+FROM country c
+JOIN countrylanguage cl ON c.Code = cl.CountryCode;
