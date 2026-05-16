@@ -47,3 +47,19 @@ SELECT * FROM country WHERE Capital IS NULL;
 
 SELECT * FROM city WHERE CountryCode IS NULL;
 -- None
+
+-- All have matches - no orphans
+SELECT count(*)
+FROM countrylanguage cl
+LEFT JOIN country ON country.Code = cl.CountryCode;
+-- All languages have joined with countries (same count of distinct langs), so all languages have a country
+
+SELECT count(distinct country.Code)
+FROM country
+LEFT JOIN countrylanguage cl ON country.Code = cl.CountryCode;
+-- All countries joined min once (same count of distinct countries) so they have a valid lang code
+
+SELECT count(*)
+FROM country
+LEFT JOIN city ON country.capital = city.id;
+-- All countries joined (same count of distinct countries) so they have a valid city code
