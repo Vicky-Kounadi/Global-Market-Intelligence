@@ -131,3 +131,58 @@ SELECT Code, Name,
 FROM final_stats
 ORDER BY market_potential_score DESC
 LIMIT 20;
+
+
+-- MARKET SEGMENTATION
+WITH
+lang_count AS (
+    SELECT CountryCode, COUNT(DISTINCT Language) AS lang_diversity
+    FROM country_language_view
+    GROUP BY CountryCode
+),
+lang_stats AS (
+    SELECT MIN(lang_diversity) AS min_lang, MAX(lang_diversity) AS max_lang
+    FROM lang_count
+),
+stats AS(
+	SELECT MIN(Population) AS min_population, -- 8000
+		MAX(Population) AS max_population, -- 1277558000
+        MIN(GNP * 1000000/Population) AS min_gnpcap,
+        MAX(GNP * 1000000/Population) AS max_gnpcap,
+        MIN(LifeExpectancy) AS min_life,
+        MAX(LifeExpectancy) AS max_life
+	FROM market_base
+),
+final_stats AS (
+    SELECT mb.Code, mb.Name,
+        mb.Population, ROUND(mb.GNP * 1000000 / mb.Population, 2) AS GNPperCapita, mb.LifeExpectancy,
+        lc.lang_diversity,
+        (LOG(mb.Population) - LOG(s.min_population)) / (LOG(s.max_population) - LOG(s.min_population)) AS population_norm,
+        (mb.GNP * 1000000 / mb.Population - s.min_gnpcap) / (s.max_gnpcap - s.min_gnpcap) AS gnp_norm,
+        (mb.LifeExpectancy - s.min_life) / (s.max_life - s.min_life) AS life_norm,
+        (lc.lang_diversity - ls.min_lang) / (ls.max_lang - ls.min_lang) AS lang_norm
+    FROM market_base mb
+    JOIN stats s
+    JOIN lang_count lc ON mb.Code = lc.CountryCode
+    JOIN lang_stats ls
+),
+avg_vals AS (
+    SELECT AVG(population_norm) AS avg_population,
+        AVG(gnp_norm) AS avg_gnp,
+        AVG(lang_norm) AS avg_lang
+    FROM final_stats
+)
+SELECT fs.Code, fs.Name,
+    fs.Population, fs.GNPperCapita,
+    ROUND(fs.population_norm, 2) AS population_norm, ROUND(fs.gnp_norm, 2) AS gnp_norm,
+    fs.lang_diversity, ROUND(fs.lang_norm, 2) AS lang_norm,
+    CASE
+        WHEN (fs.population_norm > avg_population + 0.1 AND fs.gnp_norm > avg_gnp + 0.1) THEN 'High Value'
+        WHEN (fs.population_norm > avg_population AND fs.gnp_norm <= avg_gnp) THEN 'Emerging'
+        WHEN (fs.population_norm <= avg_population AND fs.gnp_norm > avg_gnp + 0.1) THEN 'Niche Premium'
+        WHEN (fs.gnp_norm < avg_gnp AND fs.lang_norm > avg_lang + 0.1) THEN 'Challenging'
+        ELSE 'Mid-tier'
+    END AS market_type
+FROM final_stats fs
+CROSS JOIN avg_vals
+ORDER BY market_type DESC;
