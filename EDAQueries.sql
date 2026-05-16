@@ -109,17 +109,18 @@ WITH
 stats AS(
 	SELECT MIN(Population) AS min_population, -- 8000
 		MAX(Population) AS max_population, -- 1277558000
-        MIN(GNP/Population) AS min_gnp,
-        MAX(GNP/Population) AS max_gnp,
+        MIN(GNP *1000000/Population) AS min_gnp,
+        MAX(GNP *1000000/Population) AS max_gnp,
         MIN(LifeExpectancy) AS min_life,
         MAX(LifeExpectancy) AS max_life
 	FROM market_base
 ),
 final_stats AS(
 	SELECT Code, Name, 
-		Population, ROUND(GNP/Population, 2) AS GNPperCapita, LifeExpectancy,
-		ROUND(Population - min_population) / (max_population -min_population, 2) AS population_norm,
-		ROUND((GNP/Population - min_gnp) / (max_gnp - min_gnp), 2) AS gnp_norm,
+		Population, ROUND(GNP *1000000/Population, 2) AS GNPperCapita, LifeExpectancy,
+        -- Have to log/normalize the population cause data skew is too large and multiply GNP because population is raw
+		ROUND(LOG(Population) - LOG(min_population) / (LOG(max_population) -LOG(min_population)), 2) AS population_norm,
+		ROUND((GNP *1000000/Population - min_gnp) / (max_gnp - min_gnp), 2) AS gnp_norm,
 		ROUND((LifeExpectancy - min_life) / (max_life - min_life), 2) AS life_expect_norm
 	FROM market_base, stats
 )
