@@ -34,3 +34,9 @@ FROM city
 WHERE Name IS NULL OR ID IS NULL
 OR Population IS NULL OR Population<0;
 -- RULES: None
+
+SELECT *
+FROM countrylanguage
+WHERE CountryCode IS NULL OR Language IS NULL
+OR (Percentage <0 AND Percentage >=100);
+-- RULES: None
