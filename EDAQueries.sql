@@ -9,3 +9,22 @@ SELECT * FROM countrylanguage LIMIT 10;
 SELECT Count(*) AS country_count FROM country;
 SELECT Count(*) AS city_count FROM city;
 SELECT Count(*) AS lang_count FROM countrylanguage;
+
+-- DATA VALIDATION
+-- Valid countries
+SELECT *
+FROM country
+WHERE Name IS NULL OR Code IS NULL
+OR Population IS NULL OR Population<0
+OR SurfaceArea IS NULL OR SurfaceArea<=0
+OR LifeExpectancy IS NULL
+OR GNP IS NULL;
+
+SELECT count(*)
+FROM country
+WHERE Name IS NULL OR Code IS NULL
+OR Population IS NULL OR Population<=0
+OR SurfaceArea IS NULL OR SurfaceArea<=0
+OR LifeExpectancy IS NULL
+OR GNP IS NULL OR GNP<=0;
+-- RULES: Population > 0, GNP > 0, LifeExpectancy IS NOT NULL (non-states, small terratories eg.Antarctica, Vatican)
