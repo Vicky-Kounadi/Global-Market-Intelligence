@@ -40,3 +40,10 @@ FROM countrylanguage
 WHERE CountryCode IS NULL OR Language IS NULL
 OR (Percentage <0 AND Percentage >=100);
 -- RULES: None
+
+-- DATA CONSISTENCY
+SELECT * FROM country WHERE Capital IS NULL;
+-- Small terratories from validation
+
+SELECT * FROM city WHERE CountryCode IS NULL;
+-- None
