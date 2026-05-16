@@ -70,3 +70,12 @@ LEFT JOIN countrylanguage cl ON country.Code = cl.CountryCode
 GROUP BY country.Code
 ORDER BY perc;
 -- Percentages are fine, except non-states etc. Small >100 in 2 recs (same people, 2+ langs, perc overlap)
+
+-- VIEWS CREATION
+-- Rules for valid markets
+CREATE VIEW market_base AS
+SELECT *
+FROM country
+WHERE Population > 0 AND GNP > 0 AND LifeExpectancy IS NOT NULL;
+
+SELECT COUNT(*) FROM market_base;
