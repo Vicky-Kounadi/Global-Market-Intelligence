@@ -100,3 +100,33 @@ SELECT
     cl.Percentage
 FROM country c
 JOIN countrylanguage cl ON c.Code = cl.CountryCode;
+
+
+-- EDA
+
+-- MARKET ASSESMENT
+WITH
+stats AS(
+	SELECT MIN(Population) AS min_population, -- 8000
+		MAX(Population) AS max_population, -- 1277558000
+        MIN(GNP/Population) AS min_gnp,
+        MAX(GNP/Population) AS max_gnp,
+        MIN(LifeExpectancy) AS min_life,
+        MAX(LifeExpectancy) AS max_life
+	FROM market_base
+),
+final_stats AS(
+	SELECT Code, Name, 
+		Population, ROUND(GNP/Population, 2) AS GNPperCapita, LifeExpectancy,
+		ROUND(Population - min_population) / (max_population -min_population, 2) AS population_norm,
+		ROUND((GNP/Population - min_gnp) / (max_gnp - min_gnp), 2) AS gnp_norm,
+		ROUND((LifeExpectancy - min_life) / (max_life - min_life), 2) AS life_expect_norm
+	FROM market_base, stats
+)
+SELECT Code, Name,
+	Population, GNPperCapita, LifeExpectancy,
+    population_norm, gnp_norm, life_expect_norm,
+    ROUND((0.4* population_norm + 0.35* gnp_norm + 0.25* life_expect_norm), 2) AS market_potential_score
+FROM final_stats
+ORDER BY market_potential_score DESC
+LIMIT 20;
