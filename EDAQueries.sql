@@ -63,3 +63,10 @@ SELECT count(*)
 FROM country
 LEFT JOIN city ON country.capital = city.id;
 -- All countries joined (same count of distinct countries) so they have a valid city code
+
+SELECT country.Code, country.Name, sum(cl.percentage) AS perc
+FROM country
+LEFT JOIN countrylanguage cl ON country.Code = cl.CountryCode
+GROUP BY country.Code
+ORDER BY perc;
+-- Percentages are fine, except non-states etc. Small >100 in 2 recs (same people, 2+ langs, perc overlap)
