@@ -336,5 +336,7 @@ FROM region_stats
 )
 SELECT *,
 	DENSE_RANK() OVER (ORDER BY opportunity_score DESC) AS ranking
+    /* Top opporuntities per continent
+    DENSE_RANK() OVER (PARTITION BY continent ORDER BY opportunity_score DESC) AS ranking */
 FROM score_calc;
 
