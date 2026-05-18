@@ -482,5 +482,7 @@ SELECT mb.GovernmentForm,
 FROM market_base mb
 JOIN lang_count lc ON mb.Code = lc.CountryCode
 LEFT JOIN city ci ON mb.Capital = ci.ID
+WHERE mb.Population >= 100000 -- not minor territories skewing data
 GROUP BY GovernmentForm
+HAVING country_count >= 2 -- not really a government form only in 1 country
 ORDER BY country_count DESC;
