@@ -464,3 +464,23 @@ SELECT mb.NAME AS Country, ci.Name AS Capital,
 FROM market_base mb
 LEFT JOIN city ci ON mb.Capital = ci.ID
 ORDER BY capital_share_perc DESC;
+
+-- GOVERNMENT
+WITH
+lang_count AS (
+    SELECT CountryCode, COUNT(DISTINCT Language) AS language_count
+    FROM country_language_view
+    GROUP BY CountryCode
+)
+SELECT mb.GovernmentForm, 
+	COUNT(DISTINCT mb.Code) AS country_count,
+    ROUND(AVG(mb.Population), 0) AS avg_population,
+	ROUND(AVG(mb.GNP *1000000/ mb.Population), 2) AS avg_gnp_per_capita,
+    ROUND(AVG(mb.LifeExpectancy), 2) AS avg_life_exp,
+    ROUND(AVG(lc.language_count), 2) AS avg_lang_diversity,
+    ROUND(AVG(ci.Population/ mb.Population *100), 2) AS avg_capital_share_perc
+FROM market_base mb
+JOIN lang_count lc ON mb.Code = lc.CountryCode
+LEFT JOIN city ci ON mb.Capital = ci.ID
+GROUP BY GovernmentForm
+ORDER BY country_count DESC;
