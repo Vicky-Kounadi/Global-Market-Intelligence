@@ -271,3 +271,19 @@ SELECT continent, COUNT(DISTINCT Code) AS country_count,
 FROM market_base
 JOIN lang_count ON market_base.Code= lang_count.CountryCode
 GROUP BY continent;
+
+-- REGION ANALYSIS
+WITH
+lang_count AS (
+    SELECT CountryCode, COUNT(DISTINCT Language) AS lang_diversity
+    FROM country_language_view
+    GROUP BY CountryCode
+)
+SELECT continent, region, COUNT(DISTINCT Code) AS country_count, 
+	SUM(population) as total_population, 
+	ROUND(AVG(GNP * 1000000/Population), 2) as avg_gnp_per_capita, 
+    ROUND(AVG(lang_diversity),0) AS avg_language_diversity -- rounding to solid num, no decimals
+FROM market_base
+JOIN lang_count ON market_base.Code= lang_count.CountryCode
+GROUP BY continent, region;
+
