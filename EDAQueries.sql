@@ -423,3 +423,36 @@ ORDER BY language_count
 SELECT language_diversity_level, COUNT(*) AS instances
 FROM lang_data
 GROUP BY language_diversity_level;
+
+-- LANGUAGE REACH
+WITH
+country_count AS (
+    SELECT Language, Percentage,
+		CountryCode, Name AS CountryName, Population,
+		ROUND((Population* Percentage),0) AS total_country_speakers
+    FROM country_language_view clv
+    LEFT JOIN country c ON c.Code = clv.CountryCode
+),
+country_ranked AS (
+    SELECT *,
+        ROW_NUMBER() OVER (PARTITION BY Language ORDER BY Percentage DESC) AS ranking
+    FROM country_count
+), 
+lang_data AS(
+	SELECT Language, COUNT(DISTINCT CountryCode) AS country_count,
+		SUM(total_country_speakers) AS total_global_speakers,
+		AVG(Percentage) AS avg_perc_per_country,
+		MAX(Percentage) AS max_perc_country
+	FROM country_ranked 
+	GROUP BY Language
+)
+SELECT ld.Language, country_count, total_global_speakers, avg_perc_per_country, max_perc_country, CountryName,
+	CASE
+		WHEN country_count >=20 AND avg_perc_per_country >=10 THEN 'Global Reach'
+		WHEN country_count >=10 AND avg_perc_per_country >=15 THEN 'Regional Strenght'
+		ELSE 'Localized'
+	END AS reach_category
+FROM lang_data ld
+LEFT JOIN country_ranked cr ON ld.Language = cr.Language AND cr.ranking = 1
+ORDER BY country_count DESC
+LIMIT 100;
