@@ -392,3 +392,32 @@ FROM pop_dense
 WHERE Population > 500000
 GROUP BY Region
 ORDER BY avg_population_density DESC;
+
+-- DIFFERENT LANGUAGE COMPLEXITY
+WITH
+lang_count AS (
+    SELECT CountryCode, COUNT(DISTINCT Language) AS language_count,
+        SUM(CASE WHEN isOfficial = 'T' THEN 1 ELSE 0 END) AS official_language_count,
+        SUM(CASE WHEN isOfficial = 'F' THEN 1 ELSE 0 END) AS non_official_language_count
+    FROM country_language_view
+    GROUP BY CountryCode
+),
+lang_data AS(
+SELECT CountryCode, Name, Region,
+	language_count, official_language_count, 
+    CASE
+        WHEN language_count >=4 THEN 'High Diversity'
+        ELSE 'Low Diversity'
+	END AS language_diversity_level,
+	CASE
+		WHEN official_language_count >= 3 THEN 'Multi-official'
+		WHEN official_language_count = 1 THEN 'Single Official'
+		ELSE '-'
+	END AS official_language_structure
+FROM lang_count lc
+RIGHT JOIN market_base mb ON mb.Code = lc.CountryCode
+ORDER BY language_count
+)
+SELECT language_diversity_level, COUNT(*) AS instances
+FROM lang_data
+GROUP BY language_diversity_level;
