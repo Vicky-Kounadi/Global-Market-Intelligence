@@ -356,9 +356,17 @@ rank_cities AS (
 		ROUND((ci.Population / mb.Population)*100, 2) AS urdan_concentration_perc
     FROM city ci
     JOIN market_base mb ON mb.Code = ci.CountryCode
+),
+top_cities AS (
+	SELECT Continent, country_code, country, country_population, city, city_population, urdan_concentration_perc
+	FROM rank_cities
+	WHERE ranking = 1
+	ORDER BY Continent, urdan_concentration_perc DESC
 )
-SELECT Continent, country_code, country, country_population, city, city_population, urdan_concentration_perc
-FROM rank_cities
-WHERE ranking = 1
-ORDER BY Continent, urdan_concentration_perc DESC;
+SELECT Continent, ROUND(AVG(urdan_concentration_perc), 2) AS avg_concentration_perc, 
+	MAX(urdan_concentration_perc) AS max_concentration_perc,
+	SUM(CASE WHEN urdan_concentration_perc > 35 THEN 1 ELSE 0 END) AS highly_centr_countries
+FROM top_cities
+GROUP BY Continent
+ORDER BY avg_concentration_perc DESC;
 
