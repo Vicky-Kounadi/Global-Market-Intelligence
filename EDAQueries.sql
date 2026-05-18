@@ -370,3 +370,25 @@ FROM top_cities
 GROUP BY Continent
 ORDER BY avg_concentration_perc DESC;
 
+-- POPULATION DENSITY
+WITH
+pop_dense AS (
+SELECT Code, Name, Region, Population, SurfaceArea, ROUND(Population/SurfaceArea, 2) AS population_density,
+        CASE
+        -- high density is considered >1000 in global urban data, but for markets it skews the data
+            WHEN (Population / SurfaceArea) >= 1000 THEN 'Extremely Dense'
+            WHEN (Population / SurfaceArea) >= 300 THEN 'Highly Accessible'
+            WHEN (Population / SurfaceArea) >= 100 THEN 'Moderately Accessible'
+            ELSE 'Logistically Challenging'
+        END AS accessibility_type
+FROM market_base
+ORDER BY population_density DESC
+)
+SELECT Region, ROUND(AVG(population_density), 0) AS avg_population_density, 
+	MAX(population_density) AS max_population_density, MIN(population_density) AS min_population_density,
+    SUM(CASE WHEN population_density >= 300 THEN 1 ELSE 0 END) AS high_accessibility_count,
+    SUM(CASE WHEN population_density < 100 THEN 1 ELSE 0 END) AS low_accessibility_count
+FROM pop_dense
+WHERE Population > 500000
+GROUP BY Region
+ORDER BY avg_population_density DESC;
