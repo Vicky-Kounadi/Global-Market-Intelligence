@@ -214,7 +214,7 @@ FROM market_base
 ORDER BY Population
 LIMIT 10;
 
--- ECONOMIC STATUS
+-- ECONOMIC INEQUALITY
 WITH
 ranked AS (
     SELECT Code, Name, GNP * 1000000/Population AS GNPperCapita,
@@ -232,8 +232,8 @@ quartiles AS (
 stats AS (
     SELECT q1, q3, (q3 - q1) AS iqr
     FROM quartiles
-), 
-final as (
+)
+-- , final as (
 SELECT r.Code, r.Name, r.GNPperCapita, r.row_num,
 	CASE 
     -- top 10%
@@ -248,11 +248,26 @@ SELECT r.Code, r.Name, r.GNPperCapita, r.row_num,
     END AS outlier_flag
 FROM ranked r
 CROSS JOIN stats s
-ORDER BY r.GNPperCapita DESC
-)
+ORDER BY r.GNPperCapita DESC;
+/*)
 SELECT income_tier, COUNT(*) AS count, ROUND((COUNT(*) / (SELECT COUNT(*) as total_coun from market_base))*100, 2) AS percentage
 FROM final
 GROUP BY income_tier;
 SELECT outlier_flag, COUNT(*) AS count, ROUND((COUNT(*) / (SELECT COUNT(*) as total_coun from market_base))*100, 2) AS percentage
 FROM final
-GROUP BY outlier_flag;
+GROUP BY outlier_flag;*/
+
+-- CONTINETN ANALYSIS
+WITH
+lang_count AS (
+    SELECT CountryCode, COUNT(DISTINCT Language) AS lang_diversity
+    FROM country_language_view
+    GROUP BY CountryCode
+)
+SELECT continent, COUNT(DISTINCT Code) AS country_count, 
+	SUM(population) as total_population, 
+	ROUND(AVG(GNP * 1000000/Population), 2) as avg_gnp_per_capita, 
+    ROUND(AVG(lang_diversity),0) AS avg_language_diversity -- rounding to solid num, no decimals
+FROM market_base
+JOIN lang_count ON market_base.Code= lang_count.CountryCode
+GROUP BY continent;
