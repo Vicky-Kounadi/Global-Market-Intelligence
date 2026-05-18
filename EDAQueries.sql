@@ -207,8 +207,44 @@ SELECT
 		SQRT((avg_population2 - POW(avg_population, 2)) * (avg_life2 - POW(avg_life, 2))) , 3)
 		AS pearson_correlation
 FROM avg_stats;
+-- pearson_correlation= -0.205
 
 SELECT Code, Name, Population, LifeExpectancy
 FROM market_base
 ORDER BY Population
 LIMIT 10;
+
+-- ECONOMIC STATUS
+WITH
+ranked AS (
+    SELECT Code, Name, GNP * 1000000/Population AS GNPperCapita,
+        ROW_NUMBER() OVER (ORDER BY (GNP * 1000000/Population)) AS row_num,
+        COUNT(*) OVER () AS n
+    FROM market_base
+),
+quartiles AS (
+    SELECT 
+    -- PERCENT_RANK() not working :(
+        MAX(CASE WHEN row_num = FLOOR(0.25 * n) THEN GNPperCapita END) AS q1,
+        MAX(CASE WHEN row_num = FLOOR(0.75 * n) THEN GNPperCapita END) AS q3
+    FROM ranked
+),
+stats AS (
+    SELECT q1, q3, (q3 - q1) AS iqr
+    FROM quartiles
+)
+SELECT r.Code, r.Name, r.GNPperCapita, r.row_num,
+	CASE 
+    -- top 10%
+		WHEN row_num > 0.9 * n THEN 'High Income'
+        WHEN row_num <= 0.1 * n THEN 'Low Income'
+    ELSE 'Mid Income'
+    END AS income_tier,
+    CASE
+        WHEN r.GNPperCapita > s.q3 + 1.5 * s.iqr THEN 'High Outlier'
+        WHEN r.GNPperCapita < s.q1 - 1.5 * s.iqr THEN 'Low Outlier'
+        ELSE 'Normal'
+    END AS outlier_flag
+FROM ranked r
+CROSS JOIN stats s
+ORDER BY r.GNPperCapita DESC;
