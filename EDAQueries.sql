@@ -456,3 +456,11 @@ FROM lang_data ld
 LEFT JOIN country_ranked cr ON ld.Language = cr.Language AND cr.ranking = 1
 ORDER BY country_count DESC
 LIMIT 100;
+
+-- CAPITAL CITY
+SELECT mb.NAME AS Country, ci.Name AS Capital, 
+	mb.Population AS country_population, ci.Population AS capital_population,
+    ROUND((ci.Population/ mb.Population)*100, 2) AS capital_share_perc
+FROM market_base mb
+LEFT JOIN city ci ON mb.Capital = ci.ID
+ORDER BY capital_share_perc DESC;
