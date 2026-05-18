@@ -343,11 +343,19 @@ FROM score_calc;
 -- URBAN CONCETRATION
 WITH 
 rank_cities AS (
+/*-- Need market base, not all countries
      SELECT cityid, city, citypopulation,
 		countrycode, country, countrypopulation, continent,
         RANK() OVER (PARTITION BY countrycode ORDER BY citypopulation DESC) AS ranking, -- 2 cities can have same pop, both ranking 1, next 3
 		ROUND((citypopulation / countrypopulation)*100, 2) AS urdan_concentration_perc
-    FROM country_city_view
+    FROM country_city_view*/
+    
+	SELECT ci.ID AS city_id, ci.Name AS city, ci.Population AS city_population,
+		mb.Code AS country_code, mb.Name AS country, mb.Population AS country_population, mb.Continent,
+		RANK() OVER (PARTITION BY mb.Code ORDER BY ci.Population DESC) AS ranking, -- 2 cities can have same pop, both ranking 1, next 3
+		ROUND((ci.Population / mb.Population)*100, 2) AS urdan_concentration_perc
+    FROM city ci
+    JOIN market_base mb ON mb.Code = ci.CountryCode
 )
 SELECT Continent, country_code, country, country_population, city, city_population, urdan_concentration_perc
 FROM rank_cities
