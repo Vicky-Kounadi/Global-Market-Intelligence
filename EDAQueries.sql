@@ -172,7 +172,7 @@ avg_vals AS (
         AVG(lang_norm) AS avg_lang
     FROM final_stats
 )
-, final as (
+-- , final as (
 SELECT fs.Code, fs.Name,
     fs.Population, fs.GNPperCapita,
     ROUND(fs.population_norm, 2) AS population_norm, ROUND(fs.gnp_norm, 2) AS gnp_norm,
@@ -186,8 +186,28 @@ SELECT fs.Code, fs.Name,
     END AS market_type
 FROM final_stats fs
 CROSS JOIN avg_vals
-ORDER BY market_type DESC
-)
+ORDER BY market_type DESC;
+/*)
 SELECT market_type, COUNT(*) AS count, ROUND((COUNT(*) / (SELECT COUNT(*) as total_coun from market_base))*100, 2) AS percentage
 FROM final
-GROUP BY market_type;
+GROUP BY market_type;*/
+
+-- POPULATION VS LIFE EXPECTANCY
+WITH
+avg_stats AS(
+	SELECT AVG(LOG(Population)) AS avg_population, 
+        AVG(LifeExpectancy) AS avg_life,
+        AVG(LOG(Population) * LifeExpectancy) AS avg_ginomeno,
+        AVG(POW(LOG(Population), 2)) AS avg_population2, 
+        AVG(POW(LifeExpectancy, 2)) AS avg_life2
+	FROM market_base
+)
+SELECT 
+    ROUND((avg_ginomeno - avg_population * avg_life) / 
+		SQRT((avg_population2 - POW(avg_population, 2)) * (avg_life2 - POW(avg_life, 2))) , 3)
+		AS pearson_correlation
+FROM avg_stats;
+
+SELECT Code, Name, Population, LifeExpectancy
+FROM market_base
+ORDER BY Population;
