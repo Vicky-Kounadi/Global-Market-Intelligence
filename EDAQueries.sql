@@ -405,7 +405,9 @@ lang_count AS (
 lang_data AS(
 SELECT CountryCode, Name, Region,
 	language_count, official_language_count, 
+	ROUND((non_official_language_count / NULLIF(language_count,0)), 2) AS localization_risk,
     CASE
+		WHEN language_count >=8 THEN 'Extreme Diversity'
         WHEN language_count >=4 THEN 'High Diversity'
         ELSE 'Low Diversity'
 	END AS language_diversity_level,
