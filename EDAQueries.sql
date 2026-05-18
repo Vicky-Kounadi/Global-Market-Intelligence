@@ -448,8 +448,8 @@ lang_data AS(
 )
 SELECT ld.Language, country_count, total_global_speakers, avg_perc_per_country, max_perc_country, CountryName,
 	CASE
-		WHEN country_count >=20 AND avg_perc_per_country >=10 THEN 'Global Reach'
-		WHEN country_count >=10 AND avg_perc_per_country >=15 THEN 'Regional Strenght'
+		WHEN country_count >=15 AND avg_perc_per_country >=10 THEN 'Global Reach'
+		WHEN country_count >=7 AND avg_perc_per_country >=15 THEN 'Regional Powerhouse'
 		ELSE 'Localized'
 	END AS reach_category
 FROM lang_data ld
