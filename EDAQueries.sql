@@ -210,4 +210,5 @@ FROM avg_stats;
 
 SELECT Code, Name, Population, LifeExpectancy
 FROM market_base
-ORDER BY Population;
+ORDER BY Population
+LIMIT 10;
