@@ -287,3 +287,54 @@ FROM market_base
 JOIN lang_count ON market_base.Code= lang_count.CountryCode
 GROUP BY continent, region;
 
+-- REGION RANKING
+-- from market segmentation
+WITH
+lang_count AS (
+    SELECT CountryCode, COUNT(DISTINCT Language) AS lang_diversity
+    FROM country_language_view
+    GROUP BY CountryCode
+),
+lang_stats AS (
+    SELECT MIN(lang_diversity) AS min_lang, MAX(lang_diversity) AS max_lang
+    FROM lang_count
+),
+stats AS(
+	SELECT MIN(Population) AS min_population, -- 8000
+		MAX(Population) AS max_population, -- 1277558000
+        MIN(GNP * 1000000/Population) AS min_gnpcap,
+        MAX(GNP * 1000000/Population) AS max_gnpcap
+	FROM market_base
+),
+final_stats AS (
+    SELECT mb.Code, mb.Name,
+        mb.Population, ROUND(mb.GNP * 1000000 / mb.Population, 2) AS GNPperCapita, mb.LifeExpectancy,
+        lc.lang_diversity,
+        (LOG(mb.Population) - LOG(s.min_population)) / (LOG(s.max_population) - LOG(s.min_population)) AS population_norm,
+        (mb.GNP * 1000000 / mb.Population - s.min_gnpcap) / (s.max_gnpcap - s.min_gnpcap) AS gnp_norm,
+        (lc.lang_diversity - ls.min_lang) / (ls.max_lang - ls.min_lang) AS lang_norm
+    FROM market_base mb
+    JOIN stats s
+    JOIN lang_count lc ON mb.Code = lc.CountryCode
+    JOIN lang_stats ls
+),
+region_stats as (
+	SELECT mb.continent, mb.region, COUNT(DISTINCT mb.Code) AS country_count,
+		SUM(mb.population) as total_population,
+		ROUND(AVG(fs.population_norm), 3) AS avg_population_norm,
+		ROUND(AVG(fs.gnp_norm), 3) AS avg_gnp_norm, 
+		ROUND(AVG(fs.lang_norm), 3) AS avg_lang_diversity_norm
+	FROM market_base mb
+	JOIN final_stats fs ON fs.Code = mb.Code
+	GROUP BY continent, region
+),
+score_calc as(
+SELECT *,
+	-- lang diversity bad -> complex market
+	ROUND(0.5* avg_population_norm + 0.4* avg_gnp_norm - 0.1* avg_lang_diversity_norm, 3) AS opportunity_score
+FROM region_stats
+)
+SELECT *,
+	DENSE_RANK() OVER (ORDER BY opportunity_score DESC) AS ranking
+FROM score_calc;
+
