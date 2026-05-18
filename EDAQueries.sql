@@ -232,7 +232,8 @@ quartiles AS (
 stats AS (
     SELECT q1, q3, (q3 - q1) AS iqr
     FROM quartiles
-)
+), 
+final as (
 SELECT r.Code, r.Name, r.GNPperCapita, r.row_num,
 	CASE 
     -- top 10%
@@ -247,4 +248,11 @@ SELECT r.Code, r.Name, r.GNPperCapita, r.row_num,
     END AS outlier_flag
 FROM ranked r
 CROSS JOIN stats s
-ORDER BY r.GNPperCapita DESC;
+ORDER BY r.GNPperCapita DESC
+)
+SELECT income_tier, COUNT(*) AS count, ROUND((COUNT(*) / (SELECT COUNT(*) as total_coun from market_base))*100, 2) AS percentage
+FROM final
+GROUP BY income_tier;
+SELECT outlier_flag, COUNT(*) AS count, ROUND((COUNT(*) / (SELECT COUNT(*) as total_coun from market_base))*100, 2) AS percentage
+FROM final
+GROUP BY outlier_flag;
