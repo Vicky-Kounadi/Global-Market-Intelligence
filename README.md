@@ -7,10 +7,26 @@ The analysis points out where international expansion opportunities are stronges
 
 The findings show that market attractiveness is driven primarily by economic strength and development rather than population size alone. While developed economies remain the strongest premium markets, emerging regions in Asia offer the best balance between scale and growth potential.
 
-**Key Recommendations**
+### Key Recommendations
 
 - Prioritize developed economies (mostly in Western Europe and  North America) for stable, high-value expansion opportunities
 - Target emerging Asian markets for scalable long-term growth
 - Consider language diversity and localization costs during market selection
 - Adapt strategies of market entry based on urban concentration 
 - Use economic strength and development indicators alongside population when evaluating new markets
+
+## Business Problem
+The goal of this analysis aims to understand:
+
+- Which countries and regions offer the strongest expansion potential
+- How market size, purchasing power, and development interact
+- Which markets introduce operational complexity through language fragmentation
+- How geography and urban concentration influence accessibility and market entry
+
+### Key questions addressed:
+
+- Which countries are the most attractive expansion targets?
+- Are large populations automatically attractive markets?
+- Which regions offer the best balance between growth and profitability?
+- How much does language diversity affect localization complexity?
+- How centralized are different markets around major cities?
