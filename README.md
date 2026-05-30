@@ -8,7 +8,6 @@ The analysis points out where international expansion opportunities are stronges
 The findings show that market attractiveness is driven primarily by economic strength and development rather than population size alone. While developed economies remain the strongest premium markets, emerging regions in Asia offer the best balance between scale and growth potential.
 
 ### Key Recommendations
-
 - Prioritize developed economies (mostly in Western Europe and  North America) for stable, high-value expansion opportunities
 - Target emerging Asian markets for scalable long-term growth
 - Consider language diversity and localization costs during market selection
@@ -24,7 +23,6 @@ The goal of this analysis aims to understand:
 - How geography and urban concentration influence accessibility and market entry
 
 ### Key questions addressed:
-
 - Which countries are the most attractive expansion targets?
 - Are large populations automatically attractive markets?
 - Which regions offer the best balance between growth and profitability?
@@ -53,7 +51,8 @@ The analysis was performed using SQL on the MySQL World database:
 - Developed economies consistently rank highest due to strong purchasing power and stability
 - Population size alone is a poor predictor of market attractiveness
 - Smaller high-income countries can outperform larger emerging markets
-Decision:
+  
+**Decision:**
 - Prioritize markets based on economic quality, not size alone
 - Use composite market scoring for expansion decisions
 
@@ -98,4 +97,12 @@ Decision:
 **Decision:**
 - Focus immediate expansion on developed regions in Europe and USA
 - Build long-term growth strategies around emerging Asian markets
+
+
+## Next Steps
+- Incorporate additional indicators such as infrastructure quality and digital adoption
+- Develop country-level expansion scorecards for target markets
+- Introduce scenario-based weighting models for different business strategies (premium, mass-market, growth-focused)
+- Expand analysis with external economic and consumer datasets
+- Make a more nuanced analysis based on a specific business branch
 
