@@ -486,3 +486,110 @@ WHERE mb.Population >= 100000 -- not minor territories skewing data
 GROUP BY GovernmentForm
 HAVING country_count >= 2 -- not really a government form only in 1 country
 ORDER BY country_count DESC;
+
+-- POWERBI VIEW SUMMARY CREATION
+-- MARKET ASSESMENT
+CREATE VIEW vv_market_assessment AS
+WITH
+stats AS(
+	SELECT MIN(Population) AS min_population, -- 8000
+		MAX(Population) AS max_population, -- 1277558000
+        MIN(GNP * 1000000/Population) AS min_gnp,
+        MAX(GNP * 1000000/Population) AS max_gnp,
+        MIN(LifeExpectancy) AS min_life,
+        MAX(LifeExpectancy) AS max_life
+	FROM market_base
+),
+final_stats AS(
+	SELECT Code, Name, Region,
+		Population, ROUND(GNP *1000000/Population, 2) AS GNPperCapita, LifeExpectancy,
+		-- Have to log/normalize the population cause data skew is too large and multiply GNP because population is raw
+		ROUND((LOG(Population) - LOG(min_population)) / (LOG(max_population) - LOG(min_population)), 2) AS population_norm,
+		ROUND((GNP * 1000000/Population - min_gnp) / (max_gnp - min_gnp), 2) AS gnp_norm,
+		ROUND((LifeExpectancy - min_life) / (max_life - min_life), 2) AS life_expect_norm
+	FROM market_base, stats
+)
+SELECT Code AS CountryCode, Name AS CountryName,
+	Region,
+    population_norm, gnp_norm, life_expect_norm,
+    ROUND((0.4* population_norm + 0.35* gnp_norm + 0.25* life_expect_norm), 2) AS market_potential_score
+FROM final_stats;
+
+SELECT * FROM vv_market_assessment;
+
+-- MARKET SEGMENTATION
+CREATE VIEW vv_market_segmentation AS
+WITH
+lang_count AS (
+    SELECT CountryCode, COUNT(DISTINCT Language) AS lang_diversity
+    FROM country_language_view
+    GROUP BY CountryCode
+),
+lang_stats AS (
+    SELECT MIN(lang_diversity) AS min_lang, MAX(lang_diversity) AS max_lang
+    FROM lang_count
+),
+stats AS(
+	SELECT MIN(Population) AS min_population, -- 8000
+		MAX(Population) AS max_population, -- 1277558000
+        MIN(GNP * 1000000/Population) AS min_gnpcap,
+        MAX(GNP * 1000000/Population) AS max_gnpcap,
+        MIN(LifeExpectancy) AS min_life,
+        MAX(LifeExpectancy) AS max_life
+	FROM market_base
+),
+final_stats AS (
+    SELECT mb.Code, mb.Name, mb.Region,
+        mb.Population, ROUND(mb.GNP * 1000000 / mb.Population, 2) AS GNPperCapita, mb.LifeExpectancy,
+        lc.lang_diversity,
+        (LOG(mb.Population) - LOG(s.min_population)) / (LOG(s.max_population) - LOG(s.min_population)) AS population_norm,
+        (mb.GNP * 1000000 / mb.Population - s.min_gnpcap) / (s.max_gnpcap - s.min_gnpcap) AS gnp_norm,
+        (mb.LifeExpectancy - s.min_life) / (s.max_life - s.min_life) AS life_norm,
+        (lc.lang_diversity - ls.min_lang) / (ls.max_lang - ls.min_lang) AS lang_norm
+    FROM market_base mb
+    JOIN stats s
+    JOIN lang_count lc ON mb.Code = lc.CountryCode
+    JOIN lang_stats ls
+),
+avg_vals AS (
+    SELECT AVG(population_norm) AS avg_population,
+        AVG(gnp_norm) AS avg_gnp,
+        AVG(lang_norm) AS avg_lang
+    FROM final_stats
+)
+-- , final as (
+SELECT fs.Code AS CountryCode, fs.Name AS CountryName, fs.Region,
+    CASE
+        WHEN (fs.population_norm > avg_population + 0.1 AND fs.gnp_norm > avg_gnp + 0.1) THEN 'High Value'
+        WHEN (fs.population_norm > avg_population AND fs.gnp_norm <= avg_gnp) THEN 'Emerging'
+        WHEN (fs.population_norm <= avg_population AND fs.gnp_norm > avg_gnp + 0.1) THEN 'Niche Premium'
+        WHEN (fs.gnp_norm < avg_gnp AND fs.lang_norm > avg_lang + 0.1) THEN 'Challenging'
+        ELSE 'Mid-tier'
+    END AS market_type
+FROM final_stats fs
+CROSS JOIN avg_vals;
+
+SELECT * FROM vv_market_segmentation;
+
+-- DIFFERENT LANGUAGE COMPLEXITY
+CREATE VIEW vv_language_complexity AS
+WITH
+lang_count AS (
+    SELECT CountryCode, COUNT(DISTINCT Language) AS language_count,
+        SUM(CASE WHEN isOfficial = 'T' THEN 1 ELSE 0 END) AS official_language_count,
+        SUM(CASE WHEN isOfficial = 'F' THEN 1 ELSE 0 END) AS non_official_language_count
+    FROM country_language_view
+    GROUP BY CountryCode
+)
+SELECT CountryCode, Name AS CountryName, Region,
+	language_count, official_language_count, 
+    ROUND((non_official_language_count / NULLIF(language_count,0)), 2) AS localization_risk,
+    CASE
+		WHEN language_count >=8 THEN 'Extreme Diversity'
+        WHEN language_count >=4 THEN 'High Diversity'
+        ELSE 'Low Diversity'
+	END AS language_diversity_level
+FROM lang_count lc
+RIGHT JOIN market_base mb ON mb.Code = lc.CountryCode;
+
+SELECT * FROM vv_language_complexity;
