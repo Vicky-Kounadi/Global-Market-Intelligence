@@ -30,3 +30,20 @@ The goal of this analysis aims to understand:
 - Which regions offer the best balance between growth and profitability?
 - How much does language diversity affect localization complexity?
 - How centralized are different markets around major cities?
+
+## Methodology
+The analysis was performed using SQL on the MySQL World database:
+- Data exploration and validation across relational tables
+- Market scoring using normalized economic and demographic indicators
+- Market segmentation using CASE logic and CTEs
+- Ranking using window functions
+- Outlier detection using quartile and IQR methods
+- Correlation analysis between population and development indicators
+- Regional and country-level comparative analysis
+- Language diversity and localization assessment
+
+## Skills
+- SQL: CTEs, JOINs, window functions, aggregations, CASE logic
+- Data analysis: normalization, segmentation, correlation analysis, outlier detection
+- Business analysis: market evaluation, opportunity mapping, strategic prioritization
+- Decision-making: translating data into expansion and market-entry strategies
