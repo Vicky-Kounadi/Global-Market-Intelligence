@@ -42,8 +42,60 @@ The analysis was performed using SQL on the MySQL World database:
 - Regional and country-level comparative analysis
 - Language diversity and localization assessment
 
-## Skills
+### Skills
 - SQL: CTEs, JOINs, window functions, aggregations, CASE logic
 - Data analysis: normalization, segmentation, correlation analysis, outlier detection
 - Business analysis: market evaluation, opportunity mapping, strategic prioritization
 - Decision-making: translating data into expansion and market-entry strategies
+
+## Key Insights & Decisions
+### 1. Market Attractiveness
+- Developed economies consistently rank highest due to strong purchasing power and stability
+- Population size alone is a poor predictor of market attractiveness
+- Smaller high-income countries can outperform larger emerging markets
+Decision:
+- Prioritize markets based on economic quality, not size alone
+- Use composite market scoring for expansion decisions
+
+### 2. Economic Segmentation
+- Most countries fall within the mid-income segment
+- High-income markets represent a small share of countries but offer disproportionate purchasing power
+- Economic outliers require separate strategic evaluation
+
+**Decision:**
+- Use premium strategies in high-income markets
+- Use scalable growth strategies in mid-income economies
+
+### 3. Localization Complexity
+- Nearly half of countries have low language diversity, while a significant minority showing high linguistic fragmentation
+- Markets such as India, China, and South Africa require far greater localization effort
+
+**Decision:**
+- Incorporate language complexity into expansion planning
+- Build scalable localization processes for high-diversity markets
+
+### 4. Geographic Accessibility
+- Eastern Asia, Southeast Asia, and Western Europe offer highly concentrated and accessible consumer markets
+- Low-density countries often require more complex distribution networks
+
+**Decision:**
+- Prioritize dense markets for operational efficiency
+- Change logistics models based on population distribution of a region
+
+### 5. Urban Structure
+- Smaller economies tend to be highly centralized around a single city
+- Large economies are distributed across multiple metropolitan centers
+
+**Decision:**
+- Use capital-city-first strategies in centralized markets
+- Apply multi-city expansion models in large economies
+
+### 6. Regional Opportunity Mapping
+- Western Europe and North America remain the strongest premium regions
+- Eastern and Southeast Asia offer the highest growth potential
+- African regions present long-term opportunity but lower short-term purchasing power
+
+**Decision:**
+- Focus immediate expansion on developed regions in Europe and USA
+- Build long-term growth strategies around emerging Asian markets
+
