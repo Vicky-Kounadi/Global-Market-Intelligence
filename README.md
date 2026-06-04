@@ -14,6 +14,10 @@ The findings show that market attractiveness is driven primarily by economic str
 - Adapt strategies of market entry based on urban concentration 
 - Use economic strength and development indicators alongside population when evaluating new markets
 
+![PowerBIDashboard Overview](Overview_Screenshot.png)
+
+*Includes a consultant-style Powe BI report to visulaize international expansion opportunities through market attractiveness, operational complexity, and scenario-based strategy analysis.*
+
 ## Business Problem
 The goal of this analysis aims to understand:
 
